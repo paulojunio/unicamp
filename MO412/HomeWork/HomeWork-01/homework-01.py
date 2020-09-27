@@ -5,16 +5,3 @@ n = 10000
 m = 20000
 
 G = nx.gnm_random_graph(n, m)
-
-# # some properties
-# print("node degree clustering")
-# for v in nx.nodes(G):
-#     print(f"{v} {nx.degree(G, v)} {nx.clustering(G, v)}")
-#
-# print()
-# print("the adjacency list")
-# for line in nx.generate_adjlist(G):
-#     print(line)
-
-nx.draw(G)
-plt.show()
