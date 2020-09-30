@@ -1,3 +1,8 @@
+'''
+Trabalho - 0 - Exercicio 1
+Aluno: Paulo Junio Reis Rodrigues
+RA: 265674
+'''
 import cv2
 import numpy as np
 import sys
@@ -34,39 +39,43 @@ def InverteLinhas (imagem):
 #Reflete verticalmente a imagem
 def RefletirImagem (imagem):
     imagem_x, imagem_y = imagem.shape
-    imagem_x = int(imagem_x/2)
-    resultado = imagem[0:imagem_x,:]
-    resultado = np.concatenate((resultado, np.flip(imagem[0:imagem_x:,::-1])))
+    metadeDeX = int(imagem_x/2)
+    if imagem_x % 2 != 0:
+        resultado = imagem[0:metadeDeX+1,:]
+    else:
+        resultado = imagem[0:metadeDeX,:]
+    resultado = np.concatenate((resultado, np.flip(imagem[0:metadeDeX:,::-1])))
     return resultado
 
+def ArquivoDeSaida(letra):
+    return f'outputs/exercice_1_{letra}.png'
 
-nomeDoArquivo, letraDoExercicio  = sys.argv[1], sys.argv[2]
+if __name__ == "__main__":
 
-imagemOriginal = cv2.imread(nomeDoArquivo, cv2.IMREAD_GRAYSCALE) #Leitura da imagem original
-cv2.imshow('a) Imagem Original', imagemOriginal)
+    nomeDoArquivo, letraDoExercicio  = sys.argv[1], sys.argv[2]
+    imagemOriginal = cv2.imread(nomeDoArquivo, cv2.IMREAD_GRAYSCALE) #Leitura da imagem original
 
-if letraDoExercicio.upper() == 'B':
-    negativoDaImagem = ConverteCorNegativo(imagemOriginal)
-    cv2.imshow('b) Negativo da Imagem', negativoDaImagem)
-elif letraDoExercicio.upper() == 'C':
-    espalhamentoVertical = EspelharVerticamente(imagemOriginal)
-    cv2.imshow('c) Espalhamento da Imagem', espalhamentoVertical)
+    if letraDoExercicio.upper() == 'B': #Exercicio B
+        negativoDaImagem = ConverteCorNegativo(imagemOriginal)
+        cv2.imwrite(ArquivoDeSaida('B'), negativoDaImagem)
 
-elif letraDoExercicio.upper() == 'D':
-    imagemTransformada = TransformarImagem(imagemOriginal, 100, 200)
-    imagemTransformadaOpenCv = TransformarImagemOpenCv(imagemOriginal, 100, 200)
-    cv2.imshow('d) Imagem transformada', imagemTransformada)
-    cv2.imshow('d) Imagem transformada OpenCv', imagemTransformadaOpenCv)
+    elif letraDoExercicio.upper() == 'C': #Exercicio C
+        espalhamentoVertical = EspelharVerticamente(imagemOriginal)
+        cv2.imwrite(ArquivoDeSaida('C'), espalhamentoVertical)
 
-elif letraDoExercicio.upper() == 'E':
-    linhasInvertidas = InverteLinhas(imagemOriginal)
-    cv2.imshow('e) Linhas pares invertidas', linhasInvertidas)
+    elif letraDoExercicio.upper() == 'D': #Exercicio D
+        imagemTransformada = TransformarImagem(imagemOriginal, 100, 200)
+        imagemTransformadaOpenCv = TransformarImagemOpenCv(imagemOriginal, 100, 200)
+        cv2.imwrite(ArquivoDeSaida('D'), imagemTransformada)
+        cv2.imwrite("outputs/exercice_1_D_OpenCV.png", imagemTransformadaOpenCv)
 
-elif letraDoExercicio.upper() == 'F':
-    imagemRefletida = RefletirImagem(imagemOriginal)
-    cv2.imshow('f) Reflexao de linhas', imagemRefletida)
-else:
-    print("Letra do Exercicio invalida.")
+    elif letraDoExercicio.upper() == 'E': #Exercicio E
+        linhasInvertidas = InverteLinhas(imagemOriginal)
+        cv2.imwrite(ArquivoDeSaida('E'), linhasInvertidas)
 
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+    elif letraDoExercicio.upper() == 'F': #Exercicio F
+        imagemRefletida = RefletirImagem(imagemOriginal)
+        cv2.imwrite(ArquivoDeSaida('F'), imagemRefletida)
+
+    else:
+        print("Letra do Exercicio invalida.")

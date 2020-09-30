@@ -1,19 +1,37 @@
+'''
+Trabalho - 0 - Exercicio 4
+Aluno: Paulo Junio Reis Rodrigues
+RA: 265674
+'''
 import cv2
 import numpy as np
 import sys
 
+
+'''
+Criando um mosaico da imagem enviada
+Exemplo mosaico
+
+     1  2  3  4              6  8 11 13
+     4  5  6  7    ____\     3 16  1  9
+     8  9 10 11    ----/    12 14  2  7
+    12 13 14 15              4 15 10  5
+    
+'''
+
 def FazerOMosaico(imagem):
     resultado = np.zeros((imagem.shape))
     imagem_x, imagem_y = imagem.shape
+
+    # As variveis equivalem a seguinte logica xZero e' igual ao primeiro limite do eixo X, xUm e' o segundo limite do eixo X e assim por diante
     xZero, xUm, xDois, xTres = int(imagem_x * 0.25), int(imagem_x * 0.5), int(imagem_x * 0.75), int(imagem_x)
     yZero, yUm, yDois, yTres = int(imagem_y * 0.25), int(imagem_y * 0.5), int(imagem_y * 0.75), int(imagem_y)
-    print(int(imagem_x * 0.25), int(imagem_x * 0.5), int(imagem_x * 0.75), int(imagem_x))
-    print(int(imagem_y * 0.25), int(imagem_y * 0.5), int(imagem_y * 0.75), int(imagem_y))
+
     #Primeira linha
-    resultado[0:xZero, 0:yZero] = imagem[int(xZero): int(xUm), int(yZero):int(yUm)]
-    resultado[0:xZero, yZero:yUm] = imagem[int(xUm):int(xDois), int(yUm):int(yDois)]
-    resultado[0:xZero, yUm:yDois] = imagem[int(xDois):int(xTres), 0:int(yZero)]
-    resultado[0:xZero, yDois:yTres] = imagem[0:int(xZero), int(yUm):int(yDois)]
+    resultado[0:xZero, 0:yZero] = imagem[xZero: xUm, yZero:yUm]
+    resultado[0:xZero, yZero:yUm] = imagem[xUm:xDois, yUm:yDois]
+    resultado[0:xZero, yUm:yDois] = imagem[xDois:xTres, 0:yZero]
+    resultado[0:xZero, yDois:yTres] = imagem[0:xZero, yUm:yDois]
     #Segunda Linha
     resultado[xZero:xUm, 0:yZero] = imagem[xZero:xUm, yDois:yTres]
     resultado[xZero:xUm, yZero:yUm] = imagem[xDois:xTres, yDois:yTres]
@@ -33,13 +51,9 @@ def FazerOMosaico(imagem):
     return (resultado).astype(np.uint8)
 
 
-nomeDoArquivo = sys.argv[1]
+if __name__ == "__main__":
 
-imagemOriginal = cv2.imread(nomeDoArquivo, cv2.IMREAD_GRAYSCALE) #Leitura da imagem original
-cv2.imshow('Imagem Original', imagemOriginal)
-
-imagemModificada = FazerOMosaico(imagemOriginal)
-cv2.imshow('Imagem modificada', imagemModificada)
-
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+    nomeDoArquivo = sys.argv[1]
+    imagemOriginal = cv2.imread(nomeDoArquivo, cv2.IMREAD_GRAYSCALE) #Leitura da imagem original
+    imagemModificada = FazerOMosaico(imagemOriginal)
+    cv2.imwrite("outputs/exercice_4.png", imagemModificada)
