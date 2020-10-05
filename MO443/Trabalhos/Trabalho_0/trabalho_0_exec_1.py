@@ -13,7 +13,7 @@ def ConverteCorNegativo (imagem):
     return resultado
 
 #Espelhar verticalmente uma imagem 
-def EspelharVerticamente (imagem):
+def EspelharVerticalmente (imagem):
     resultado = imagem[::-1]
     return resultado
 
@@ -60,7 +60,7 @@ if __name__ == "__main__":
         cv2.imwrite(ArquivoDeSaida('B'), negativoDaImagem)
 
     elif letraDoExercicio.upper() == 'C': #Exercicio C
-        espalhamentoVertical = EspelharVerticamente(imagemOriginal)
+        espalhamentoVertical = EspelharVerticalmente(imagemOriginal)
         cv2.imwrite(ArquivoDeSaida('C'), espalhamentoVertical)
 
     elif letraDoExercicio.upper() == 'D': #Exercicio D
