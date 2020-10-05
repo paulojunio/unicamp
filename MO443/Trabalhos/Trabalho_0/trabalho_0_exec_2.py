@@ -11,8 +11,8 @@ import sys
 def ModificarBrilho(imagem, gamma):
     primeiroNumerador = (imagem - imagem.min()).astype('float64')
     primeiroDenominador = (imagem.max() - imagem.min())
-    resultado = (primeiroNumerador / primeiroDenominador) ** (1/float(gamma))
-    resultado = np.round(resultado * 255).astype(np.uint8)
+    resultado = (primeiroNumerador / primeiroDenominador) ** (1/float(gamma)) #Aplicando normalizacao, e elavando o valor por 1/Gama
+    resultado = np.round(resultado * 255).astype(np.uint8) #Mutiplicacao por 255, para voltar para [0:255]
     return resultado
 
 if __name__ == "__main__":

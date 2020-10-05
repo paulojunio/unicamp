@@ -8,7 +8,7 @@ import sys
 
 #Combinando duas imagens, utilizando duas escalas para cada imagem
 def CombinarImagens(primeiraImagem, segundaImagem, escalaUm, escalaDois):
-    resultado = cv2.addWeighted(primeiraImagem, escalaUm, segundaImagem, escalaDois, 0)
+    resultado = cv2.addWeighted(primeiraImagem, escalaUm, segundaImagem, escalaDois, 0) #Somando as duas imagens, utilizando os dois pesos enviados
     return resultado
 
 

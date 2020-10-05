@@ -9,7 +9,7 @@ import sys
 
 #Converte uma imagem para tons negativo
 def ConverteCorNegativo (imagem):
-    resultado = cv2.bitwise_not(imagem)
+    resultado = cv2.bitwise_not(imagem) #Invertendo todos os valores da imagem
     return resultado
 
 #Espelhar verticalmente uma imagem 
@@ -21,13 +21,13 @@ def EspelharVerticalmente (imagem):
 def TransformarImagem (imagem, g_min, g_max):
     primeiroNumerador = (imagem - imagem.min()).astype('float64')
     primeiroDenominador = (imagem.max() - imagem.min())
-    resultado = np.round(((g_max - g_min) * primeiroNumerador / primeiroDenominador + g_min)).astype(np.uint8)
+    resultado = np.round(((g_max - g_min) * primeiroNumerador / primeiroDenominador + g_min)).astype(np.uint8) #Aplicando formula de normalizacao, depois arrendando os valores
     return resultado
 
 #Normalizacao de uma imagem (usando OpenCV) de acordo com o g_min e o g_max
 def TransformarImagemOpenCv (imagem, g_min, g_max):
     resultado = np.zeros((imagem.shape))
-    resultado = cv2.normalize(imagem,  resultado, g_min, g_max, cv2.NORM_MINMAX)
+    resultado = cv2.normalize(imagem,  resultado, g_min, g_max, cv2.NORM_MINMAX) #Normalizando via opencv
     return resultado
 
 #Inverte as linhas pares da imagem
@@ -40,9 +40,9 @@ def InverteLinhas (imagem):
 def RefletirImagem (imagem):
     imagem_x, imagem_y = imagem.shape
     metadeDeX = int(imagem_x/2)
-    if imagem_x % 2 != 0:
+    if imagem_x % 2 != 0: #Impar
         resultado = imagem[0:metadeDeX+1,:]
-    else:
+    else:#Par
         resultado = imagem[0:metadeDeX,:]
     resultado = np.concatenate((resultado, np.flip(imagem[0:metadeDeX:,::-1])))
     return resultado
