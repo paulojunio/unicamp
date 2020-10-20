@@ -37,6 +37,8 @@ def OutDegreePlot(graph):
     degreesOutFreq = np.zeros(allDegrees.max() + 1, dtype=int)
     for x in allDegrees:
         degreesOutFreq[x] += 1
+
+    print(degreesOutFreq)
     print(degreesOutFreq / allDegrees.size)
     PlotLogLogScale(degreesOutFreq / allDegrees.size)
 
@@ -46,11 +48,13 @@ def InDegreePlot(graph):
     degreesInFreq = np.zeros(allDegrees.max() + 1, dtype=int)
     for x in allDegrees:
         degreesInFreq[x] += 1
+    print(degreesInFreq)
     print(degreesInFreq / allDegrees.size)
     PlotLogLogScale(degreesInFreq / allDegrees.size)
 
 
 if __name__ == "__main__":
     graph = CreateGraph()
+    print(nwx.degree_histogram(graph))
     OutDegreePlot(graph)
     InDegreePlot(graph)
