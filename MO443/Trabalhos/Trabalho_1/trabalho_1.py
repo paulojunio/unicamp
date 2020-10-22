@@ -1,50 +1,59 @@
 '''
-Trabalho - 0 - Exercicio 1
+Trabalho - 1
 Aluno: Paulo Junio Reis Rodrigues
 RA: 265674
 '''
 import cv2
 import numpy as np
 import sys
-from skimage.exposure import rescale_intensity
 
 #Constantes - Filtros utilizados
+
+#Filtro H1
 HUM_ARRAY = np.array([[0, 0, -1, 0, 0],
                       [0, -1, -2, -1, 0],
                       [-1, -2, 16, -2, -1],
                       [0, -1, -2, -1, 0],
                       [0, 0, -1, 0, 0]])
 
+#Filtro H2
 HDOIS_ARRAY = np.array([[1/256, 4/256, 6/256, 4/256, 1/256],
                         [4/256, 16/256, 24/256, 16/256, 4/256],
                         [6/256, 24/256, 36/256, 24/256, 6/256],
                         [4/256, 16/256, 24/256, 16/256, 4/256],
                         [1/256, 4/256, 6/256, 4/256, 1/256]])
 
+#Filtro H3
 HTRES_ARRAY = np.array([[-1, 0, 1],
                         [-2, 0, 2],
                         [-1, 0, 1]])
 
+#Filtro H4
 HQUATRO_ARRAY = np.array([[-1, -2, -1],
                           [0, 0, 0],
                           [1, 2, 1]])
 
+#Filtro H5
 HCINCO_ARRAY = np.array([[-1, -1, -1],
                          [-1, 8, -1],
                          [-1, -1, -1]])
 
+#Filtro H6
 HSEIS_ARRAY = np.array([[1/9, 1/9, 1/9],
                         [1/9, 1/9, 1/9],
                         [1/9, 1/9, 1/9]])
 
+#Filtro H7
 HSETE_ARRAY = np.array([[-1, -1, 2],
                         [-1, 2, -1],
                         [2, -1, -1]])
 
+#Filtro H8
 HOITO_ARRAY = np.array([[2, -1, -1],
                         [-1, 2, -1],
                         [-1, -1, 2]])
 
+#Filtro H9
 HNOVE_ARRAY = np.array([[1/9, 0, 0, 0, 0, 0, 0, 0, 0],
                         [0, 1/9, 0, 0, 0, 0, 0, 0, 0],
                         [0, 0, 1/9, 0, 0, 0, 0, 0, 0],
@@ -55,63 +64,42 @@ HNOVE_ARRAY = np.array([[1/9, 0, 0, 0, 0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0, 0, 0, 1/9, 0],
                         [0, 0, 0, 0, 0, 0, 0, 0, 1/9]])
 
+#Filtro H10
 HDEZ_ARRAY = np.array([[-1/8, -1/8, -1/8, -1/8, -1/8],
                         [-1/8, 2/8, 2/8, 2/8, -1/8],
                         [-1/8, 2/8, 8/8, 2/8, -1/8],
                         [-1/8, 2/8, 2/8, 2/8, -1/8],
                         [-1/8, -1/8, -1/8, -1/8, -1/8]])
 
+#Filtro H11
 HONZE_ARRAY = np.array([[-1, -1, 0],
                         [-1, 0, 1],
                         [0, 1, 1]])
 
-#Normalizacao de uma imagem de acordo com o g_min e o g_max
-def TransformarImagem (imagem, g_min, g_max):
-    resultado = np.zeros((imagem.shape))
-    resultado = cv2.normalize(imagem, resultado, g_min, g_max, cv2.NORM_MINMAX)  # Normalizando via opencv
-    return resultado
+#Filtro H12
+HDOZE_ARRAY = np.array([[0, 1, 1],
+                        [-1, 0, 1],
+                        [-1, -1, 0]])
 
-def convolucao1(imagem, filtro):
-    (M, N) = imagem.shape
-    (m, n) = filtro.shape
-    padn = (n - 1) // 2
-    padm = (m - 1) // 2
+#Filtro H13
+HTREZE_ARRAY = np.array([[1, 1, 0],
+                        [1, 0, -1],
+                        [0, -1, -1]])
 
-    imagem = cv2.copyMakeBorder(imagem, padm, padm, padn, padn, cv2.BORDER_DEFAULT)
-    imagemSaida = np.zeros((M, N), dtype="float32")
+#Filtro H14
+HQUATORZE_ARRAY = np.array([[0, -1, -1],
+                            [1, 0, -1],
+                            [1, 1, 0]])
 
-    for y in np.arange(padm, M + padm):
-        for x in np.arange(padn, N + padn):
-            regiao_da_imagem = imagem[y - padm:y + padm + 1, x - padn:x + padn + 1]
-            imagemSaida[y - padm, x - padn] = (regiao_da_imagem * filtro[::-1, ::-1]).sum()
-
-    imagemSaida[imagemSaida <= 0] = 0
-    imagemSaida[imagemSaida >= 255] = 255
-    imagemSaida = TransformarImagem(imagemSaida, 0, 255).astype("uint8")
-    return imagemSaida
-
-def convolucao(imagem, filtro):
-    M, N = imagem.shape
-    m, n = filtro.shape
-    padn, padm = int((n - 1) / 2), int((m - 1) / 2)
-
-    imagem = cv2.copyMakeBorder(imagem, padm, padm, padn, padn, cv2.BORDER_DEFAULT)
-    imagemSaida = np.zeros((M, N), dtype="float32")
-
-    for y in np.arange(padm, M + padm):
-        for x in np.arange(padn, N + padn):
-            regiaoDaImagem = imagem[y - padm:y + padm + 1, x - padn:x + padn + 1]
-            imagemSaida[y - padm, x - padn] = (regiaoDaImagem * filtro[::-1, ::-1]).sum()
-
-    imagemSaida = rescale_intensity(imagemSaida, in_range=(0, 255))
-    return ( imagemSaida * 255).astype("uint8")
-
+#Nome dos arquivos de saida
 def ArquivoDeSaida(filtro):
     return f'outputs/trabalho_1_{filtro}.png'
 
+#Metodo para aplicar o filtro utilizando a funcao de correlacao do OpenCV
 def AplicarFiltro(imagem, filtro):
-    return cv2.filter2D(imagem, -1, filtro[::-1, ::-1], cv2.BORDER_REPLICATE)
+    return cv2.filter2D(imagem, -1, filtro[::-1, ::-1], cv2.BORDER_REPLICATE) #Reflitindo o filtro em 180 graus, para que seja feita a correlacao correta
 
+#Metodo para somar as duas imagens, para isso as imagens devem ser transformada para 16 bits, realizar os calculos sqrt((h3^2) + (h4^2)) para que depois possa voltar a 8 bits
 def SomarDuasFiltragens(primeiraImagem, segundaImagem):
     return np.round(np.sqrt((np.power(primeiraImagem.astype(np.uint16), 2) + np.power(segundaImagem.astype(np.uint16), 2)))).astype(np.uint8)
 
@@ -168,46 +156,14 @@ if __name__ == "__main__":
     output = AplicarFiltro(imagemOriginal, HONZE_ARRAY)
     cv2.imwrite(ArquivoDeSaida('H11'), output)
 
+    # Aplicando o filtro h12
+    output = AplicarFiltro(imagemOriginal, HDOZE_ARRAY)
+    cv2.imwrite(ArquivoDeSaida('H12'), output)
 
+    # Aplicando o filtro h13
+    output = AplicarFiltro(imagemOriginal, HTREZE_ARRAY)
+    cv2.imwrite(ArquivoDeSaida('H13'), output)
 
-
-    #==========Outro codigo======Naoentregar
-    # output = convolucao(imagemOriginal, HUM_ARRAY)
-    # cv2.imwrite(ArquivoDeSaida('MetodoH1'), output)
-    #
-    # output = convolucao(imagemOriginal, HDOIS_ARRAY)
-    # cv2.imwrite(ArquivoDeSaida('MetodoH2'), output)
-    #
-    # output_coluna = convolucao(imagemOriginal, HTRES_ARRAY)
-    # cv2.imwrite(ArquivoDeSaida('MetodoH3'), output_coluna)
-    #
-    # output_linha = convolucao(imagemOriginal, HQUATRO_ARRAY)
-    # cv2.imwrite(ArquivoDeSaida('MetodoH4'), output_linha)
-    #
-    # output = np.round(
-    #     np.sqrt((np.power(output_linha.astype(np.uint16), 2) + np.power(output_coluna.astype(np.uint16), 2)))).astype(
-    #     np.uint8)
-    # cv2.imwrite(ArquivoDeSaida('MetodoH3_H4'), output)
-    #
-    # output = convolucao(imagemOriginal, HCINCO_ARRAY)
-    # cv2.imwrite(ArquivoDeSaida('MetodoH5'), output)
-    #
-    # output = convolucao(imagemOriginal, HSEIS_ARRAY)
-    # cv2.imwrite(ArquivoDeSaida('MetodoH6'), output)
-    #
-    # output = convolucao(imagemOriginal, HSETE_ARRAY)
-    # cv2.imwrite(ArquivoDeSaida('MetodoH7'), output)
-    #
-    # output = convolucao(imagemOriginal, HOITO_ARRAY)
-    # cv2.imwrite(ArquivoDeSaida('MetodoH8'), output)
-    #
-    # output = convolucao(imagemOriginal, HNOVE_ARRAY)
-    # cv2.imwrite(ArquivoDeSaida('MetodoH9'), output)
-    #
-    # output = convolucao(imagemOriginal, HDEZ_ARRAY)
-    # cv2.imwrite(ArquivoDeSaida('MetodoH10'), output)
-    #
-    # output = convolucao(imagemOriginal, HONZE_ARRAY)
-    # cv2.imwrite(ArquivoDeSaida('MetodoH11'), output)
-
-
+    # Aplicando o filtro h14
+    output = AplicarFiltro(imagemOriginal, HQUATORZE_ARRAY)
+    cv2.imwrite(ArquivoDeSaida('H14'), output)
