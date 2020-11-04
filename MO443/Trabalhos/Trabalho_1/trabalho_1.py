@@ -95,13 +95,17 @@ HQUATORZE_ARRAY = np.array([[0, -1, -1],
 def ArquivoDeSaida(filtro):
     return f'outputs/trabalho_1_{filtro}.png'
 
-#Metodo para aplicar o filtro utilizando a funcao de correlacao do OpenCV
+'''
+Metodo para aplicar o filtro utilizando a funcao de correlacao do OpenCV, para a tratar os problemas de bordas foi 
+utilizado o BORDER_REPLICATE que replica a as bordas verticais e horizontais para criar uma borda mais grossa para nao
+obter problemas durante a execucao
+'''
 def AplicarFiltro(imagem, filtro):
     return cv2.filter2D(imagem, -1, filtro[::-1, ::-1], cv2.BORDER_REPLICATE) #Reflitindo o filtro em 180 graus, para que seja feita a correlacao correta
 
 #Metodo para somar as duas imagens, para isso as imagens devem ser transformada para 16 bits, realizar os calculos sqrt((h3^2) + (h4^2)) para que depois possa voltar a 8 bits
 def SomarDuasFiltragens(primeiraImagem, segundaImagem):
-    return np.round(np.sqrt((np.power(primeiraImagem.astype(np.uint16), 2) + np.power(segundaImagem.astype(np.uint16), 2)))).astype(np.uint8)
+    return np.round(np.sqrt((np.power(primeiraImagem.astype(np.uint16), 2) + np.power(segundaImagem.astype(np.uint16), 2)))).astype(np.uint8) #Funcao round utilizada para arrendodar os dados
 
 if __name__ == "__main__":
 
@@ -121,6 +125,11 @@ if __name__ == "__main__":
     cv2.imwrite(ArquivoDeSaida('H3'), output_coluna)
 
     # Aplicando o filtro h4
+    print(HQUATRO_ARRAY[::-1, ::-1])
+    print(HTRES_ARRAY[::-1, ::-1])
+    print(HSETE_ARRAY[::-1, ::-1])
+    print(HOITO_ARRAY[::-1, ::-1])
+    print(HONZE_ARRAY[::-1, ::-1])
     output_linha = AplicarFiltro(imagemOriginal, HQUATRO_ARRAY)
     cv2.imwrite(ArquivoDeSaida('H4'), output_linha)
 
