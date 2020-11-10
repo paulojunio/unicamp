@@ -3,6 +3,7 @@ Trabalho - 2
 Aluno: Paulo Junio Reis Rodrigues
 RA: 265674
 '''
+
 import cv2
 import numpy as np
 import sys
@@ -17,38 +18,28 @@ def TrueOuFalse(arg):
        print('Argumento invalido')
        sys.exit()
 
-def verificarValores(valores):
-    if(valores[0] < 0):
-        valores[0] = 0
-    if (valores[1] < 0):
-        valores[1] = 0
-    if (valores[2] < 0):
-        valores[2] = 0
-    return valores
-
 def gerarValores(pixel):
     if (pixel < 128):
-        pixel = 0
+        return 0
     else:
-        pixel = 255
-    return pixel
+        return 255
 
-def FloydSteinberg(imagemOriginal, alternado, pad):
+def FloydSteinberg(imagem, alternado, pad):
+    imagemOriginal = np.copy(imagem)
     imagemX, imagemY, camadas = imagemOriginal.shape
     imagemOriginal = cv2.copyMakeBorder(imagemOriginal, pad, pad, pad, pad, cv2.BORDER_CONSTANT, value=0) # aplicação de padding zero com largura 1
     imagemResultado = np.zeros((imagemX, imagemY, camadas), dtype=np.uint8)  # resultado
     imagemOriginal = imagemOriginal.astype(np.float32)
     linhaPar = True
 
-    for i in range(pad, imagemX):
-        if not alternado and linhaPar:
-            for j in range(pad, imagemY):
+    for i in range(pad, imagemX + pad):
+        if linhaPar:
+            for j in range(pad, imagemY + pad):
                 pixels = np.copy(imagemOriginal[i][j])
 
                 pixels[0] = gerarValores(pixels[0])
                 pixels[1] = gerarValores(pixels[1])
                 pixels[2] = gerarValores(pixels[2])
-
 
                 erros = np.subtract(imagemOriginal[i][j], pixels)
 
@@ -61,11 +52,11 @@ def FloydSteinberg(imagemOriginal, alternado, pad):
                 imagemOriginal[i + 1][j] = imagemOriginal[i + 1][j + 1] + (5 / 16) * erros
                 imagemOriginal[i + 1][j + 1] = imagemOriginal[i + 1][j + 1] + (1 / 16) * erros
 
-                imagemResultado[i][j] = pixels
+                imagemResultado[i - pad][j - pad] = pixels
                 if alternado:
                     linhaPar = False
         else:
-            for j in range(imagemY-1, 0, -1):
+            for j in range(imagemY-1+pad, pad, -1):
                 pixels = np.copy(imagemOriginal[i][j])
 
                 pixels[0] = gerarValores(pixels[0])
@@ -84,22 +75,24 @@ def FloydSteinberg(imagemOriginal, alternado, pad):
                 imagemOriginal[i + 1][j] = imagemOriginal[i + 1][j] + (5 / 16) * erros
                 imagemOriginal[i + 1][j - 1] = imagemOriginal[i + 1][j - 1] + (1 / 16) * erros
 
-                imagemResultado[i][j] = pixels
+
+                imagemResultado[i - pad][j - pad] = pixels
                 linhaPar = True
 
     return imagemResultado
 
 
-def StevensonArce(imagemOriginal, alternado, pad):
+def StevensonArce(imagem, alternado, pad):
+    imagemOriginal = np.copy(imagem)
     imagemX, imagemY, camadas = imagemOriginal.shape
     imagemOriginal = cv2.copyMakeBorder(imagemOriginal, pad, pad, pad, pad, cv2.BORDER_CONSTANT, value=0) # aplicação de padding zero com largura 1
     imagemResultado = np.zeros((imagemX, imagemY, camadas), dtype=np.uint8)  # resultado
     imagemOriginal = imagemOriginal.astype(np.float32)
     linhaPar = True
 
-    for i in range(pad, imagemX):
-        if not alternado and linhaPar:
-            for j in range(pad, imagemY):
+    for i in range(pad, imagemX + pad):
+        if linhaPar:
+            for j in range(pad, imagemY + pad):
                 pixels = np.copy(imagemOriginal[i][j])
 
                 pixels[0] = gerarValores(pixels[0])
@@ -124,16 +117,16 @@ def StevensonArce(imagemOriginal, alternado, pad):
                 imagemOriginal[i + 2][j + 2] = imagemOriginal[i + 2][j + 2] + (12 / 200) * erros
 
                 # Quarta linha
-                imagemOriginal[i + 1][j - 3] = imagemOriginal[i + 1][j - 3] + (5 / 200) * erros
-                imagemOriginal[i + 1][j - 1] = imagemOriginal[i + 1][j - 1] + (12 / 200) * erros
-                imagemOriginal[i + 1][j + 1] = imagemOriginal[i + 1][j + 1] + (12 / 200) * erros
-                imagemOriginal[i + 1][j + 3] = imagemOriginal[i + 1][j + 3] + (5 / 200) * erros
+                imagemOriginal[i + 3][j - 3] = imagemOriginal[i + 3][j - 3] + (5 / 200) * erros
+                imagemOriginal[i + 3][j - 1] = imagemOriginal[i + 3][j - 1] + (12 / 200) * erros
+                imagemOriginal[i + 3][j + 1] = imagemOriginal[i + 3][j + 1] + (12 / 200) * erros
+                imagemOriginal[i + 3][j + 3] = imagemOriginal[i + 3][j + 3] + (5 / 200) * erros
 
-                imagemResultado[i][j] = pixels
+                imagemResultado[i - pad][j - pad] = pixels
                 if alternado:
                     linhaPar = False
         else:
-            for j in range(imagemY-1, 0, -1):
+            for j in range(imagemY-1+pad, pad, -1):
                 pixels = np.copy(imagemOriginal[i][j])
 
                 pixels[0] = gerarValores(pixels[0])
@@ -158,18 +151,19 @@ def StevensonArce(imagemOriginal, alternado, pad):
                 imagemOriginal[i + 2][j - 2] = imagemOriginal[i + 2][j - 2] + (12 / 200) * erros
 
                 # Quarta linha
-                imagemOriginal[i + 1][j + 3] = imagemOriginal[i + 1][j + 3] + (5 / 200) * erros
-                imagemOriginal[i + 1][j + 1] = imagemOriginal[i + 1][j + 1] + (12 / 200) * erros
-                imagemOriginal[i + 1][j - 1] = imagemOriginal[i + 1][j - 1] + (12 / 200) * erros
-                imagemOriginal[i + 1][j - 3] = imagemOriginal[i + 1][j - 3] + (5 / 200) * erros
+                imagemOriginal[i + 3][j + 3] = imagemOriginal[i + 3][j + 3] + (5 / 200) * erros
+                imagemOriginal[i + 3][j + 1] = imagemOriginal[i + 3][j + 1] + (12 / 200) * erros
+                imagemOriginal[i + 3][j - 1] = imagemOriginal[i + 3][j - 1] + (12 / 200) * erros
+                imagemOriginal[i + 3][j - 3] = imagemOriginal[i + 3][j - 3] + (5 / 200) * erros
 
-                imagemResultado[i][j] = pixels
+                imagemResultado[i - pad][j - pad] = pixels
                 linhaPar = True
 
     return imagemResultado
 
 
-def Burkes(imagemOriginal, alternado, pad):
+def Burkes(imagem, alternado, pad):
+    imagemOriginal = np.copy(imagem)
     imagemX, imagemY, camadas = imagemOriginal.shape
     imagemOriginal = cv2.copyMakeBorder(imagemOriginal, pad, pad, pad, pad, cv2.BORDER_CONSTANT, value=0) # aplicação de padding zero com largura 1
     imagemResultado = np.zeros((imagemX, imagemY, camadas), dtype=np.uint8)  # resultado
@@ -232,7 +226,8 @@ def Burkes(imagemOriginal, alternado, pad):
     return imagemResultado
 
 
-def Sierra(imagemOriginal, alternado, pad):
+def Sierra(imagem, alternado, pad):
+    imagemOriginal = np.copy(imagem)
     imagemX, imagemY, camadas = imagemOriginal.shape
     imagemOriginal = cv2.copyMakeBorder(imagemOriginal, pad, pad, pad, pad, cv2.BORDER_CONSTANT, value=0) # aplicação de padding zero com largura 1
     imagemResultado = np.zeros((imagemX, imagemY, camadas), dtype=np.uint8)  # resultado
@@ -305,7 +300,8 @@ def Sierra(imagemOriginal, alternado, pad):
     return imagemResultado
 
 
-def Stucki(imagemOriginal, alternado, pad):
+def Stucki(imagem, alternado, pad):
+    imagemOriginal = np.copy(imagem)
     imagemX, imagemY, camadas = imagemOriginal.shape
     imagemOriginal = cv2.copyMakeBorder(imagemOriginal, pad, pad, pad, pad, cv2.BORDER_CONSTANT, value=0) # aplicação de padding zero com largura 1
     imagemResultado = np.zeros((imagemX, imagemY, camadas), dtype=np.uint8)  # resultado
@@ -382,7 +378,8 @@ def Stucki(imagemOriginal, alternado, pad):
     return imagemResultado
 
 
-def JarvisJudiceNinke(imagemOriginal, alternado, pad):
+def JarvisJudiceNinke(imagem, alternado, pad):
+    imagemOriginal = np.copy(imagem)
     imagemX, imagemY, camadas = imagemOriginal.shape
     imagemOriginal = cv2.copyMakeBorder(imagemOriginal, pad, pad, pad, pad, cv2.BORDER_CONSTANT, value=0) # aplicação de padding zero com largura 1
     imagemResultado = np.zeros((imagemX, imagemY, camadas), dtype=np.uint8)  # resultado
