@@ -6,17 +6,7 @@ RA: 265674
 
 import cv2
 import numpy as np
-import sys
-
-def TrueOuFalse(arg):
-    argumento = str(arg).upper()
-    if 'TRUE'.startswith(argumento):
-       return True
-    elif 'FALSE'.startswith(argumento):
-       return False
-    else:
-       print('Argumento invalido')
-       sys.exit()
+import argparse
 
 def MetodoFloydSteinberg(imagem, erro, i, j, invertido):
     if not invertido:
@@ -241,9 +231,9 @@ def MetodoJarvisJudiceNinke(imagem, erro, i, j, invertido):
         imagem[i + 2][j - 1] = imagem[i + 2][j - 1] + (3 / 48) * erro
         imagem[i + 2][j - 2] = imagem[i + 2][j - 2] + (1 / 48) * erro
 
-def DifusaoDeErro(imagem, alternado, pad, filtro):
+def DifusaoDeErro(imagem, alternado, pad, mascara, camadas):
     imagemOriginal = np.copy(imagem)
-    imagemX, imagemY, camadas = imagemOriginal.shape
+    imagemX, imagemY = imagemOriginal.shape[0:2]
     imagemOriginal = cv2.copyMakeBorder(imagemOriginal, pad, pad, pad, pad, cv2.BORDER_CONSTANT, value=0) # aplicação de padding zero com largura do tamanho do pad
     imagemResultado = np.zeros((imagemX, imagemY, camadas), dtype=np.uint8) # resultado
     imagemOriginal = imagemOriginal.astype(np.float64)
@@ -256,18 +246,7 @@ def DifusaoDeErro(imagem, alternado, pad, filtro):
                 pixels = np.where(pixels < 128, 0, 255)
                 erro = np.subtract(imagemOriginal[i][j], pixels)
 
-                if filtro == 1:
-                    MetodoFloydSteinberg(imagemOriginal, erro, i, j, False)
-                elif filtro == 2:
-                    MetodoStevensonArce(imagemOriginal, erro, i, j, False)
-                elif filtro == 3:
-                    MetodoBurkes(imagemOriginal, erro, i, j, False)
-                elif filtro == 4:
-                    MetodoSierra(imagemOriginal, erro, i, j, False)
-                elif filtro == 5:
-                    MetodoStucki(imagemOriginal, erro, i, j, False)
-                elif filtro == 6:
-                    MetodoJarvisJudiceNinke(imagemOriginal, erro, i, j, False)
+                mascara(imagemOriginal, erro, i, j, False)
 
                 imagemResultado[i - pad][j - pad] = pixels
                 if alternado:
@@ -278,78 +257,13 @@ def DifusaoDeErro(imagem, alternado, pad, filtro):
                 pixels = np.where(pixels < 128, 0, 255)
                 erro = np.subtract(imagemOriginal[i][j], pixels)
 
-                if filtro == 1:
-                    MetodoFloydSteinberg(imagemOriginal, erro, i, j, True)
-                elif filtro == 2:
-                    MetodoStevensonArce(imagemOriginal, erro, i, j, True)
-                elif filtro == 3:
-                    MetodoBurkes(imagemOriginal, erro, i, j, True)
-                elif filtro == 4:
-                    MetodoSierra(imagemOriginal, erro, i, j, True)
-                elif filtro == 5:
-                    MetodoStucki(imagemOriginal, erro, i, j, True)
-                elif filtro == 6:
-                    MetodoJarvisJudiceNinke(imagemOriginal, erro, i, j, True)
+                mascara(imagemOriginal, erro, i, j, True)
 
                 imagemResultado[i - pad][j - pad] = pixels
                 flag = True
 
     return imagemResultado
 
-def DifusaoDeErroEscalaDeCinza(imagem, alternado, pad, filtro):
-    imagemOriginal = np.copy(imagem)
-    imagemX, imagemY = imagemOriginal.shape
-    imagemOriginal = cv2.copyMakeBorder(imagemOriginal, pad, pad, pad, pad, cv2.BORDER_CONSTANT, value=0) # aplicação de padding zero com largura do tamanho do pad
-    imagemResultado = np.zeros((imagemX, imagemY), dtype=np.uint8) # resultado
-    imagemOriginal = imagemOriginal.astype(np.float64)
-    flag = True
-
-    for i in range(pad, imagemX + pad):
-        if flag:
-            for j in range(pad, imagemY + pad):
-                pixels = np.copy(imagemOriginal[i][j])
-                pixels = np.where(pixels < 128, 0, 255)
-                erro = np.subtract(imagemOriginal[i][j], pixels)
-
-                if filtro == 1:
-                    MetodoFloydSteinberg(imagemOriginal, erro, i, j, False)
-                elif filtro == 2:
-                    MetodoStevensonArce(imagemOriginal, erro, i, j, False)
-                elif filtro == 3:
-                    MetodoBurkes(imagemOriginal, erro, i, j, False)
-                elif filtro == 4:
-                    MetodoSierra(imagemOriginal, erro, i, j, False)
-                elif filtro == 5:
-                    MetodoStucki(imagemOriginal, erro, i, j, False)
-                elif filtro == 6:
-                    MetodoJarvisJudiceNinke(imagemOriginal, erro, i, j, False)
-
-                imagemResultado[i - pad][j - pad] = pixels
-                if alternado:
-                    flag = False
-        else:
-            for j in range(imagemY-1+pad, pad, -1):
-                pixels = np.copy(imagemOriginal[i][j])
-                pixels = np.where(pixels < 128, 0, 255)
-                erro = np.subtract(imagemOriginal[i][j], pixels)
-
-                if filtro == 1:
-                    MetodoFloydSteinberg(imagemOriginal, erro, i, j, True)
-                elif filtro == 2:
-                    MetodoStevensonArce(imagemOriginal, erro, i, j, True)
-                elif filtro == 3:
-                    MetodoBurkes(imagemOriginal, erro, i, j, True)
-                elif filtro == 4:
-                    MetodoSierra(imagemOriginal, erro, i, j, True)
-                elif filtro == 5:
-                    MetodoStucki(imagemOriginal, erro, i, j, True)
-                elif filtro == 6:
-                    MetodoJarvisJudiceNinke(imagemOriginal, erro, i, j, True)
-
-                imagemResultado[i - pad][j - pad] = pixels
-                flag = True
-
-    return imagemResultado
 
 #Nome dos arquivos de saida
 def ArquivoDeSaida(nomeDoMetodo, alternado):
@@ -358,32 +272,33 @@ def ArquivoDeSaida(nomeDoMetodo, alternado):
 
     return f'outputs/trabalho_2_{nomeDoMetodo}.png'
 
-#Nome dos arquivos de saida
-def ArquivoDeSaidaCinza(nomeDoMetodo, alternado):
-    if alternado:
-        return f'outputs/trabalho_2_{nomeDoMetodo}_alternado_cinza.png'
 
-    return f'outputs/trabalho_2_{nomeDoMetodo}_cinza.png'
+#Constantes - Mascaras para utilizar
+MASCARAS = np.array([['FloydSteinberg', 1, MetodoFloydSteinberg],
+                    ['StevensonArce', 3, MetodoStevensonArce],
+                    ['Burkes', 2, MetodoBurkes],
+                    ['Sierra', 2, MetodoSierra],
+                    ['Stucki', 2, MetodoStucki],
+                    ['JarvisJudiceNinke', 2, MetodoJarvisJudiceNinke]])
 
 if __name__ == "__main__":
 
-    nomeDoArquivo, alternado = sys.argv[1], TrueOuFalse(sys.argv[2])
-    imageOriginal = cv2.imread(nomeDoArquivo, cv2.IMREAD_COLOR) #Leitura da imagem original
-    cv2.imwrite(ArquivoDeSaida('FloydSteinberg', alternado), DifusaoDeErro(imageOriginal, alternado, 1, 1))
-    cv2.imwrite(ArquivoDeSaida('StevensonArce', alternado), DifusaoDeErro(imageOriginal, alternado, 3, 2))
-    cv2.imwrite(ArquivoDeSaida('Burkes', alternado), DifusaoDeErro(imageOriginal, alternado, 2, 3))
-    cv2.imwrite(ArquivoDeSaida('Sierra', alternado), DifusaoDeErro(imageOriginal, alternado, 2, 4))
-    cv2.imwrite(ArquivoDeSaida('Stucki', alternado), DifusaoDeErro(imageOriginal, alternado, 2, 5))
-    cv2.imwrite(ArquivoDeSaida('JarvisJudiceNinke', alternado), DifusaoDeErro(imageOriginal, alternado, 2, 6))
+    parser = argparse.ArgumentParser(description='Trabalho 2 - Aplicacao de meio tons com difusao de erro.')
+    parser.add_argument('nomeDoArquivo', help='Nome do arquivo que sera utilizado')
+    parser.add_argument('--alternado', help='Use this option if zigzag through the image required.', action='store_true')
+    parser.add_argument('--monocromatica', help='Use this option if monochromatic image.', action='store_true')
+    args = parser.parse_args()
 
-    imageOriginal = cv2.imread(nomeDoArquivo, cv2.IMREAD_GRAYSCALE) #Leitura da imagem tons de cinza
+    imageOriginal = cv2.imread(args.nomeDoArquivo, cv2.IMREAD_COLOR) #Leitura da imagem original
 
-    cv2.imwrite(ArquivoDeSaidaCinza('FloydSteinberg', alternado), DifusaoDeErroEscalaDeCinza(imageOriginal, alternado, 1, 1))
-    cv2.imwrite(ArquivoDeSaidaCinza('StevensonArce', alternado), DifusaoDeErroEscalaDeCinza(imageOriginal, alternado, 3, 2))
-    cv2.imwrite(ArquivoDeSaidaCinza('Burkes', alternado), DifusaoDeErroEscalaDeCinza(imageOriginal, alternado, 2, 3))
-    cv2.imwrite(ArquivoDeSaidaCinza('Sierra', alternado), DifusaoDeErroEscalaDeCinza(imageOriginal, alternado, 2, 4))
-    cv2.imwrite(ArquivoDeSaidaCinza('Stucki', alternado), DifusaoDeErroEscalaDeCinza(imageOriginal, alternado, 2, 5))
-    cv2.imwrite(ArquivoDeSaidaCinza('JarvisJudiceNinke', alternado), DifusaoDeErroEscalaDeCinza(imageOriginal, alternado, 2, 6))
+    for x in MASCARAS:
+        cv2.imwrite(ArquivoDeSaida(x[0], args.alternado), DifusaoDeErro(imageOriginal, args.alternado, x[1], x[2], 3))
+
+    if args.monocromatica:
+        imageOriginal = cv2.imread(args.nomeDoArquivo, cv2.IMREAD_GRAYSCALE) #Leitura da imagem tons de cinza
+        for x in MASCARAS:
+            cv2.imwrite(ArquivoDeSaida(x[0] + 'Cinza', args.alternado),
+                        DifusaoDeErro(imageOriginal, args.alternado, x[1], x[2], 1))
 
 
 
