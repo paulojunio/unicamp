@@ -286,7 +286,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Trabalho 2 - Aplicacao de meio tons com difusao de erro.')
     parser.add_argument('nomeDoArquivo', help='Nome do arquivo que sera utilizado')
     parser.add_argument('--alternado', help='Use this option if zigzag through the image required.', action='store_true')
-    parser.add_argument('--monocromatica', help='Use this option if monochromatic image.', action='store_true')
+    parser.add_argument('--monocromatico', help='Use this option if monochromatic image.', action='store_true')
     args = parser.parse_args()
 
     imageOriginal = cv2.imread(args.nomeDoArquivo, cv2.IMREAD_COLOR) #Leitura da imagem original
@@ -294,8 +294,9 @@ if __name__ == "__main__":
     for x in MASCARAS:
         cv2.imwrite(ArquivoDeSaida(x[0], args.alternado), DifusaoDeErro(imageOriginal, args.alternado, x[1], x[2], 3))
 
-    if args.monocromatica:
+    if args.monocromatico:
         imageOriginal = cv2.imread(args.nomeDoArquivo, cv2.IMREAD_GRAYSCALE) #Leitura da imagem tons de cinza
+
         for x in MASCARAS:
             cv2.imwrite(ArquivoDeSaida(x[0] + 'Cinza', args.alternado),
                         DifusaoDeErro(imageOriginal, args.alternado, x[1], x[2], 1))
