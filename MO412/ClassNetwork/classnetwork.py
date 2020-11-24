@@ -33,7 +33,7 @@ def CreateClassNetwork(fileName):
 def DrawGraph(graph, imageName):
 
     plt.clf()
-    nwx.draw(graph, with_labels = True)
+    nwx.draw(graph, with_labels=True)
     #plt.show()
     plt.savefig(imageName)
 
@@ -205,10 +205,13 @@ if __name__ == '__main__':
     # All analysis for projection of students
     AllNodesClassNetwork(projectionStudents, 'Projection students')
 
+    # GenerateGephi file for classNetwork
     GenerateGephi(classNetwork, 'classNetworkGephi')
 
+    # GenerateGephi file for projection hobbies
     GenerateGephi(projectionHobbies, 'hobbiesGephi')
 
+    # GenerateGephi file for projection students
     GenerateGephi(projectionStudents, 'studentsGephi')
 
 
