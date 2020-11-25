@@ -262,7 +262,7 @@ def MetodoStucki(imagem, erro, i, j, invertido):
         imagem[i + 2][j - 2] = imagem[i + 2][j - 2] + (1 / 42) * erro
 
 '''
-Esse e' o filtro de Stucki
+Esse e' o filtro de Jarvis, Judice e Ninke
 
      |      | f(x,y) | 7/48 | 5/48  
 3/48 | 5/48 |  7/48  | 5/48 | 3/48    
@@ -383,8 +383,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Trabalho 2 - Aplicacao de meio tons com difusao de erro.')
     parser.add_argument('nomeDoArquivo', help='Nome do arquivo que sera utilizado')
-    parser.add_argument('--alternado', help='Use this option if zigzag through the image required.', action='store_true')
-    parser.add_argument('--monocromatico', help='Use this option if monochromatic image.', action='store_true')
+    parser.add_argument('--alternado', help='Ao chama-lo a varredura sera feita de forma alternada.', action='store_true')
+    parser.add_argument('--monocromatico', help='Ao chama-lo a resposta tambem sera enviada como monocromatica.', action='store_true')
     args = parser.parse_args()
 
     imageOriginal = cv2.imread(args.nomeDoArquivo, cv2.IMREAD_COLOR) #Leitura da imagem original
