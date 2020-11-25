@@ -25,16 +25,12 @@ def CreateClassNetwork(fileName):
             if i[j] == 1:
                 g.add_edge(i[0],constant[j-1])
 
-    print(nwx.info(g))
-    print(f'Is a bipartite network? {nwx.is_bipartite(g)}')
-
     return g
 
 def DrawGraph(graph, imageName):
 
     plt.clf()
     nwx.draw(graph, with_labels=True)
-    #plt.show()
     plt.savefig(imageName)
 
 def DrawGraphBipartite(graph, imageName):
@@ -47,8 +43,7 @@ def DrawGraphBipartite(graph, imageName):
     # Draw the network
     nwx.draw(graph, pos=pos, with_labels=True)
 
-    # Plot
-    #plt.show()
+    # Save image
     plt.savefig(imageName)
 
 #Plot degree distribution with normal scale
@@ -62,7 +57,6 @@ def PlotNormalScale(graph, imageName):
     plt.plot(degrees[0:], degree_freq[0:], 'ro-')
     plt.xlabel('Degree')
     plt.ylabel('Frequency')
-    #plt.show()
     plt.savefig(imageName)
 
 #Plot degree distribution with log log scale
@@ -76,7 +70,6 @@ def PlotLogLogScale(graph, imageName):
     plt.loglog(degrees[0:], degree_freq[0:], 'go-')
     plt.xlabel('Degree')
     plt.ylabel('Frequency')
-    #plt.show()
     plt.savefig(imageName)
 
 #Plot degree distribution with histogram
@@ -94,68 +87,66 @@ def Histogram(graph, nodes, histogramName, imageName):
     plt.xlabel("Degree")
     ax.set_xticks([d + 0.4 for d in deg])
     ax.set_xticklabels(deg)
-    #plt.show()
     plt.savefig(imageName)
 
 def BarGraph(values, nodes, nameOfNodes, imageName):
 
     plt.clf()
-    plt.bar([degree for name, degree in values], [node for node in nodes])
+    plt.bar([node for node in nodes], [round(float(value), 2) for name, value in values])
     plt.xlabel("Hobbies")
     plt.ylabel("Degree")
     plt.title(f'Bar graph {nameOfNodes}')
-    #plt.show()
     plt.savefig(imageName)
 
-def AllNodesClassNetwork(classNetwork, nameOfNodes):
+def AnalysisTheNetwork(graph, nameOfNodes):
 
+    graph.name = nameOfNodes
     print('####################################################')
-    if nwx.is_bipartite(classNetwork):
+    print(nwx.info(graph))
+    if nwx.is_bipartite(graph):
         # Draw the graph using networkx
         DrawGraphBipartite(classNetwork, f'images/DrawGraph{nameOfNodes}')
 
     else:
         # Draw the graph using networkx
-        DrawGraph(classNetwork, f'images/DrawGraph{nameOfNodes}')
+        DrawGraph(graph, f'images/DrawGraph{nameOfNodes}')
 
     # Plot some scale for the all class network
-    PlotNormalScale(classNetwork, f'images/PlotNormal{nameOfNodes}')
-    PlotLogLogScale(classNetwork, f'images/PlotLogLog{nameOfNodes}')
+    PlotNormalScale(graph, f'images/PlotNormal{nameOfNodes}')
+    PlotLogLogScale(graph, f'images/PlotLogLog{nameOfNodes}')
 
     # Plot the histogram for the all class network
-    Histogram(classNetwork, classNetwork.nodes(), nameOfNodes, f'images/Histogram{nameOfNodes}')
+    Histogram(graph, classNetwork.nodes(), nameOfNodes, f'images/Histogram{nameOfNodes}')
 
     # Analyse the components and the giant component
-    numberOfComponents = nwx.number_connected_components(classNetwork)
+    numberOfComponents = nwx.number_connected_components(graph)
     print(f'Number of components: {numberOfComponents}')
 
-    components = nwx.connected_components(classNetwork)
+    components = nwx.connected_components(graph)
     sortedComponents = sorted(components, reverse=True)
-    giantComponent = classNetwork.subgraph(sortedComponents[0])
+    giantComponent = graph.subgraph(sortedComponents[0])
     print(f'Size of the giant component in graph {giantComponent.number_of_nodes()}')
 
-    print(
-        f'Generate a giantComponent with {giantComponent.number_of_nodes()} nodes, {giantComponent.number_of_edges()} links and average degree is {giantComponent.number_of_edges() * 2 / giantComponent.number_of_nodes()}')
-
-    averageDistance = nwx.average_shortest_path_length(giantComponent)
-    print(f'Average distance of giant component is {averageDistance}')
-
     # Average distance Graph Bipartite
-    print(f'Average distance of bipartite graph {nwx.average_shortest_path_length(classNetwork)}')
+    print(f'Average distance of bipartite graph {nwx.average_shortest_path_length(graph)}')
 
     # Clustering coefficient, in this case it's 0 for every node
-    print(nwx.algorithms.cluster.clustering(classNetwork))
+    clustering = nwx.algorithms.cluster.clustering(graph)
+    BarGraph(np.array(list(clustering.items())), graph, 'Clustering of ' + nameOfNodes, f'images/Clustering{nameOfNodes}')
+
+    print(f'Average Clustering coefficient {nwx.algorithms.cluster.average_clustering(graph)}')
 
 
-
-def SeparateNodes(classNetwork, nodes, nameOfNodes):
+def SeparateNodes(graph, nodes, nameOfNodes):
     # Plot the histogram for the all class network
-    Histogram(classNetwork, nodes, nameOfNodes, f'images/Histogram{nameOfNodes}')
+    Histogram(graph, nodes, nameOfNodes, f'images/Histogram{nameOfNodes}')
 
     # Graph with all degree
-    degreeDistribution = classNetwork.degree(nodes)
+    degreeDistribution = np.array(graph.degree(nodes))
 
-    BarGraph(degreeDistribution, nodes, nameOfNodes, f'images/BarGraph{nameOfNodes}')
+    BarGraph(degreeDistribution, nodes, 'Degree distribution of ' + nameOfNodes, f'images/DegreeDistribution{nameOfNodes}')
+    print(f'Average degree of {nameOfNodes} is {(graph.number_of_edges())/ len(nodes)}')
+
 
 def GenerateGephi(graph, fileName):
 
@@ -182,7 +173,7 @@ if __name__ == '__main__':
     classNetwork = CreateClassNetwork("class-network.tsv")
 
     #All analysis for classNetwork graph
-    AllNodesClassNetwork(classNetwork, 'All nodes')
+    AnalysisTheNetwork(classNetwork, 'All nodes')
 
     #Pick the nodes of the two parts
     hobbies, students = nwx.bipartite.sets(classNetwork)
@@ -200,10 +191,10 @@ if __name__ == '__main__':
     projectionStudents = nwx.algorithms.bipartite.projected_graph(classNetwork, students)
 
     # All analysis for projection of hobbies
-    AllNodesClassNetwork(projectionHobbies, 'Projection hobbies')
+    AnalysisTheNetwork(projectionHobbies, 'Projection hobbies')
 
     # All analysis for projection of students
-    AllNodesClassNetwork(projectionStudents, 'Projection students')
+    AnalysisTheNetwork(projectionStudents, 'Projection students')
 
     # GenerateGephi file for classNetwork
     GenerateGephi(classNetwork, 'classNetworkGephi')
