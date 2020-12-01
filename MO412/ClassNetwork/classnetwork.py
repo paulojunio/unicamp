@@ -1,3 +1,9 @@
+"""
+Student: Paulo Junio Reis Rodrigues
+RA:265674
+Class Network Analysis
+"""
+
 import pandas as pd
 import networkx as nwx
 import numpy as np
@@ -27,12 +33,14 @@ def CreateClassNetwork(fileName):
 
     return g
 
+# Draw the graph using the networkx
 def DrawGraph(graph, imageName):
 
     plt.clf()
     nwx.draw(graph, with_labels=True)
     plt.savefig(imageName)
 
+# Draw the bipartite graph using the networkx
 def DrawGraphBipartite(graph, imageName):
 
     plt.clf()
@@ -73,50 +81,52 @@ def PlotLogLogScale(graph, imageName):
     plt.savefig(imageName)
 
 #Plot degree distribution with histogram
-def Histogram(graph, nodes, histogramName, imageName):
+def Histogram(graph, nodes, histogramName, imageName, valueX, valueY):
 
     degree_sequence = sorted([d for n, d in graph.degree(nodes)], reverse=True)
     degreeCount = collections.Counter(degree_sequence)
     deg, cnt = zip(*degreeCount.items())
     plt.clf()
     fig, ax = plt.subplots()
-    plt.bar(deg, cnt, width=0.80, color="b")
+    plt.bar(deg, cnt, width=0.80)
 
-    plt.title(f"Degree Histogram {histogramName}")
-    plt.ylabel("Count")
-    plt.xlabel("Degree")
+    plt.title(f"Degree distribution {histogramName}")
+    plt.ylabel(valueY)
+    plt.xlabel(valueX)
     ax.set_xticks([d + 0.4 for d in deg])
     ax.set_xticklabels(deg)
     plt.savefig(imageName)
 
-def BarGraph(values, nodes, nameOfNodes, imageName):
+#Plot a BarGraph for any value in this script
+def BarGraph(values, nodes, nameOfNodes, imageName, valueX, valueY):
 
     plt.clf()
     plt.bar([node for node in nodes], [round(float(value), 2) for name, value in values])
-    plt.xlabel("Hobbies")
-    plt.ylabel("Degree")
+    plt.xlabel(valueX)
+    plt.ylabel(valueY)
     plt.title(f'Bar graph {nameOfNodes}')
     plt.savefig(imageName)
 
-def AnalysisTheNetwork(graph, nameOfNodes):
+#All the analysis of a specific graph
+def AnalysisTheNetwork(graph, nameOfNodes, value):
 
     graph.name = nameOfNodes
     print('####################################################')
     print(nwx.info(graph))
     if nwx.is_bipartite(graph):
         # Draw the graph using networkx
-        DrawGraphBipartite(classNetwork, f'images/DrawGraph{nameOfNodes}')
+        DrawGraphBipartite(graph, f'images/DrawGraph{nameOfNodes}')
 
     else:
         # Draw the graph using networkx
         DrawGraph(graph, f'images/DrawGraph{nameOfNodes}')
 
-    # Plot some scale for the all class network
+    # Plot some scale for the graph
     PlotNormalScale(graph, f'images/PlotNormal{nameOfNodes}')
     PlotLogLogScale(graph, f'images/PlotLogLog{nameOfNodes}')
 
-    # Plot the histogram for the all class network
-    Histogram(graph, classNetwork.nodes(), nameOfNodes, f'images/Histogram{nameOfNodes}')
+    # Plot the histogram for the graph
+    Histogram(graph, graph.nodes(), nameOfNodes, f'images/Histogram{nameOfNodes}', 'Degree', 'Count')
 
     # Analyse the components and the giant component
     numberOfComponents = nwx.number_connected_components(graph)
@@ -127,27 +137,28 @@ def AnalysisTheNetwork(graph, nameOfNodes):
     giantComponent = graph.subgraph(sortedComponents[0])
     print(f'Size of the giant component in graph {giantComponent.number_of_nodes()}')
 
-    # Average distance Graph Bipartite
-    print(f'Average distance of bipartite graph {nwx.average_shortest_path_length(graph)}')
+    # Average distance graph
+    print(f'Average distance of graph {nwx.average_shortest_path_length(graph)}')
 
-    # Clustering coefficient, in this case it's 0 for every node
+    # Clustering coefficient for the graph
     clustering = nwx.algorithms.cluster.clustering(graph)
-    BarGraph(np.array(list(clustering.items())), graph, 'Clustering of ' + nameOfNodes, f'images/Clustering{nameOfNodes}')
+    BarGraph(np.array(list(clustering.items())), graph, 'Clustering of ' + nameOfNodes, f'images/Clustering{nameOfNodes}', value, 'Clustering coefficient')
 
+    # Average clustering coefficient for the graph
     print(f'Average Clustering coefficient {nwx.algorithms.cluster.average_clustering(graph)}')
 
-
+# Separate Nodes analysis
 def SeparateNodes(graph, nodes, nameOfNodes):
     # Plot the histogram for the all class network
-    Histogram(graph, nodes, nameOfNodes, f'images/Histogram{nameOfNodes}')
+    Histogram(graph, nodes, nameOfNodes, f'images/Histogram{nameOfNodes}', nameOfNodes, 'Degree')
 
     # Graph with all degree
     degreeDistribution = np.array(graph.degree(nodes))
 
-    BarGraph(degreeDistribution, nodes, 'Degree distribution of ' + nameOfNodes, f'images/DegreeDistribution{nameOfNodes}')
+    BarGraph(degreeDistribution, nodes, 'Degrees of ' + nameOfNodes, f'images/DegreeDistribution{nameOfNodes}', nameOfNodes, 'Degree')
     print(f'Average degree of {nameOfNodes} is {(graph.number_of_edges())/ len(nodes)}')
 
-
+# Generate the gephi file
 def GenerateGephi(graph, fileName):
 
     f = open(f"{fileName}.net", 'w+')
@@ -173,7 +184,7 @@ if __name__ == '__main__':
     classNetwork = CreateClassNetwork("class-network.tsv")
 
     #All analysis for classNetwork graph
-    AnalysisTheNetwork(classNetwork, 'All nodes')
+    AnalysisTheNetwork(classNetwork, 'All nodes', 'All nodes')
 
     #Pick the nodes of the two parts
     hobbies, students = nwx.bipartite.sets(classNetwork)
@@ -191,10 +202,10 @@ if __name__ == '__main__':
     projectionStudents = nwx.algorithms.bipartite.projected_graph(classNetwork, students)
 
     # All analysis for projection of hobbies
-    AnalysisTheNetwork(projectionHobbies, 'Projection hobbies')
+    AnalysisTheNetwork(projectionHobbies, 'Projection hobbies', 'Hobbies')
 
     # All analysis for projection of students
-    AnalysisTheNetwork(projectionStudents, 'Projection students')
+    AnalysisTheNetwork(projectionStudents, 'Projection students', 'Students')
 
     # GenerateGephi file for classNetwork
     GenerateGephi(classNetwork, 'classNetworkGephi')
