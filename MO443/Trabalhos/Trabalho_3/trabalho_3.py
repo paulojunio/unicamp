@@ -50,7 +50,7 @@ def Contraste(mascara, pixel, *desconsiderado):
     distanciaDoMaximo = np.amax(mascara) - pixel
 
     if distanciaDoMinimo > distanciaDoMaximo:
-        return 0
+        return 0cd
     else:
         return 255
 
@@ -87,7 +87,7 @@ def ArquivoDeSaida(nomeDoMetodo):
 
 """
 Constantes
-Metodos que irao ser utilizados
+Nome e seus respectivos metodos
 """
 METODOS_LOCAIS = np.array([['Bernsen', Bernsen],
                            ['Niblack', Niblack],
@@ -114,6 +114,7 @@ if __name__ == "__main__":
     imagemOriginal = np.float64(cv2.imread(args.nomeDoArquivo, cv2.IMREAD_GRAYSCALE)) #Leitura da imagem original, e convertendo para float 64 para nao atrapalhar nos calculos
     GerarHistograma(imagemOriginal, 'Original')
 
+    #Geracao de limiarizacao global
     imagemResultado = MetodoGlobal(np.copy(imagemOriginal), args.limiar)
     cv2.imwrite(ArquivoDeSaida('Global'), imagemResultado)
     GerarHistograma(imagemResultado, 'Global')
