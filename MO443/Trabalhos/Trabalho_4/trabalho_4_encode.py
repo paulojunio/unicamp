@@ -7,6 +7,7 @@ RA: 265674
 import cv2
 import numpy as np
 import argparse
+import sys
 
 #Abrir o arquivo, com o modo binario
 def AbrirArquivoBinario(file):
@@ -15,33 +16,6 @@ def AbrirArquivoBinario(file):
      for i in bytes:
          arquivoBinario = arquivoBinario + str(('{:08b}'.format(i)))
      return arquivoBinario
-
-# """Writes string to file as binary"""
-# def writeFile(stream, file):
-#     with open(file, "wb") as f:
-#       f.write(bitstring_to_bytes(stream))
-#
-# """Converts binary string into bytes"""
-# def bitstring_to_bytes(s):
-#     w = [int(s[i:i+8],2) for i in range(0, len(s), 8)]
-#     return(bytes(w))
-
-# def Decoder(imagem, plano):
-#     arrayDeBitsTotais = ""
-#     for x in range(imagem.shape[0]):
-#         for y in range(imagem.shape[1]):
-#             r, g, b =  [format(i, "08b") for i in imagem[x][y]]
-#             arrayDeBitsTotais += r[-1 * plano]
-#             arrayDeBitsTotais += g[-1 * plano]
-#             arrayDeBitsTotais += b[-1 * plano]
-#
-#     arrayDeBits = ""
-#     for byte in arrayDeBitsTotais:
-#         arrayDeBits = arrayDeBits + byte
-#         if arrayDeBits[-100:] == '1111111111111111111111111111111111110000000000000000000000000000011111111111111111111111111111111111':
-#             break
-#
-#     writeFile(arrayDeBits[:-100], './outputs/testesdssssfinal.png')
 
 #Metodo para pegar o arquivo de texto, e transformalo em binario
 def GerarArquivoBinario(textoDeEntrada):
@@ -55,6 +29,12 @@ def GerarArquivoBinario(textoDeEntrada):
     return arrayDeBits
 
 def Encoder(imagem, bits, plano):
+    numeroDeBytesTotais = imagem.shape[0] * imagem.shape[1] * 3
+    print(len(bits), numeroDeBytesTotais)
+    if len(bits) > numeroDeBytesTotais:
+        print('Numero de bits nao e permitido')
+        sys.exit()
+
     indexBits = 0
     for x in range(imagem.shape[0]):
         for y in range(imagem.shape[1]):
@@ -80,6 +60,11 @@ def Encoder(imagem, bits, plano):
 
     return imagem
 
+def MostrarPlano(imagem, plano, args):
+    imagemPlano = ((imagem >> plano) % 2) * 255
+    for j in range(3):
+        cv2.imwrite(f'./planoDeBits/Plano_{plano}_Cor_{j}_{args.arquivoDeEntrada}.png', imagemPlano[:,:,j])
+
 # Metodo principal
 if __name__ == "__main__":
 
@@ -94,7 +79,15 @@ if __name__ == "__main__":
 
     arquivoBinario = GerarArquivoBinario(args.arquivoDeEntrada) #Gerando arquivo em uma string binaria
 
-    cv2.imwrite(f'{args.imagemDeSaida}', Encoder(np.copy(imageOriginal), arquivoBinario, int(args.plano_bits)))
+    imagemDeSaida = Encoder(np.copy(imageOriginal), arquivoBinario, int(args.plano_bits) + 1)
+
+    cv2.imwrite(f'{args.imagemDeSaida}', imagemDeSaida)
+
+    for i in range(3):
+        MostrarPlano(imagemDeSaida, i, args)
+
+    MostrarPlano(imagemDeSaida, 7, args)
+
 
 
 

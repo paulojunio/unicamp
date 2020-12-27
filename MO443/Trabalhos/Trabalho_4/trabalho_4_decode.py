@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     imageOriginal = cv2.imread(args.imagemDeSaida, cv2.IMREAD_COLOR)  # Leitura da imagem original
 
-    imagem = Decoder(imageOriginal, int(args.plano_bits), args.arquivoSaida)
+    imagem = Decoder(imageOriginal, int(args.plano_bits) + 1, args.arquivoSaida)
 
 
 
