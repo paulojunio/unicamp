@@ -1,11 +1,12 @@
 '''
-Trabalho - 3
+Trabalho - 4 - Dencoder
 Aluno: Paulo Junio Reis Rodrigues
 RA: 265674
 '''
 
 import cv2
 import argparse
+import sys
 
 #Escrever o arquivo de saida, com o array de bytes
 def EscreverArquivo(arrayDeBytes, arquivo):
@@ -27,7 +28,7 @@ def Decoder(imagem, plano, arquivoSaida):
         if arrayDeBits[-100:] == '1111111111111111111111111111111111110000000000000000000000000000011111111111111111111111111111111111':
             break
 
-    EscreverArquivo(arrayDeBits[:-100], f'./outputs/{arquivoSaida}')
+    EscreverArquivo(arrayDeBits[:-100], f'{arquivoSaida}')
 
 # Metodo principal
 if __name__ == "__main__":
@@ -36,6 +37,10 @@ if __name__ == "__main__":
     parser.add_argument('plano_bits', help='Valor do plano de bit que sera utilizado.')
     parser.add_argument('arquivoSaida', help='Nome da imagem de saida.')
     args = parser.parse_args()
+
+    if int(args.plano_bits) > 2:
+        print('Plano de bit invalido')
+        sys.exit()
 
     imageOriginal = cv2.imread(args.imagemDeSaida, cv2.IMREAD_COLOR)  # Leitura da imagem original
 
