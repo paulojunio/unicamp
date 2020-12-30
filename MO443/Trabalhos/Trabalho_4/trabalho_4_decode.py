@@ -13,6 +13,7 @@ def EscreverArquivo(arrayDeBytes, arquivo):
     with open(arquivo, "wb") as arquivo:
       arquivo.write(bytes([int(arrayDeBytes[i:i + 8], 2) for i in range(0, len(arrayDeBytes), 8)]))
 
+#Metodo para realizar a decodificacao do arquivo
 def Decoder(imagem, plano, arquivoSaida):
     arrayDeBitsTotais = ""
     for x in range(imagem.shape[0]):
@@ -25,7 +26,7 @@ def Decoder(imagem, plano, arquivoSaida):
     arrayDeBits = ""
     for byte in arrayDeBitsTotais:
         arrayDeBits = arrayDeBits + byte
-        if arrayDeBits[-100:] == '1111111111111111111111111111111111110000000000000000000000000000011111111111111111111111111111111111':
+        if arrayDeBits[-100:] == '1111111111111111111111111111111111110000000000000000000000000000011111111111111111111111111111111111': #Encontrado a chave de parada
             break
 
     EscreverArquivo(arrayDeBits[:-100], f'{arquivoSaida}')

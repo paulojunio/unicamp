@@ -28,10 +28,11 @@ def GerarArquivoBinario(textoDeEntrada):
 
     return arrayDeBits
 
+#Metodo para realizar a codificacao
 def Encoder(imagem, bits, plano):
     numeroDeBytesTotais = imagem.shape[0] * imagem.shape[1] * 3
     print(len(bits), numeroDeBytesTotais)
-    if len(bits) > numeroDeBytesTotais:
+    if len(bits) > numeroDeBytesTotais: #Verificando se o arquivo pode ser colocando dentro da imagem
         print('Numero de bits nao e permitido')
         sys.exit()
 
@@ -60,6 +61,7 @@ def Encoder(imagem, bits, plano):
 
     return imagem
 
+#Mostrar todos os planos de bits e gravar numa pasta especifica
 def MostrarPlano(imagem, plano, args):
     imagemPlano = ((imagem >> plano) % 2) * 255
     for j in range(3):
@@ -76,8 +78,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if int(args.plano_bits) > 2:
-        print('Plano de bit invalido')
-        sys.exit()
+        print('Para melohores resultados use bits menos significativos!')
 
     imageOriginal = cv2.imread(args.nomeDoArquivo, cv2.IMREAD_COLOR) #Leitura da imagem original
 
