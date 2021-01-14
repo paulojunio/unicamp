@@ -189,6 +189,7 @@ if __name__ == '__main__':
     #Pick the nodes of the two parts
     hobbies, students = nwx.bipartite.sets(classNetwork)
 
+    print('oiiiiii',hobbies)
     #All analysis for hobbies part
     SeparateNodes(classNetwork, hobbies, 'Hobbies')
 
