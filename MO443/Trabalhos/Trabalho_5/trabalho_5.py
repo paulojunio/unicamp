@@ -7,15 +7,82 @@ RA: 265674
 import cv2
 import numpy as np
 import argparse
+import math
 
+#Metodo de polinomios de Lagrange
+def PolinomiosLagrange(imagem, x, y):
+    resultado = 0
+    dx = x - math.floor(x)
+    dy = y - math.floor(y)
+    ls = np.zeros(5)
+    for n in range(1, 5):
+        ls[n] += (-dx * (dx - 1) * (dx - 2) * ChecarBorda(imagem, x - 1, y + n - 2))/6
+        ls[n] += ((dx + 1) * (dx - 1) * (dx - 2) * ChecarBorda(imagem, x, y + n - 2))/2
+        ls[n] += (-dx * (dx + 1) * (dx - 2) * ChecarBorda(imagem, x + 1, y + n - 2))/2
+        ls[n] += (dx * (dx + 1) * (dx - 1) * ChecarBorda(imagem, x + 2, y + n - 2))/6
 
-#Metodos
-def Neighbor(imagem, x, y):
+    resultado += (-dy * (dy - 1) * (dy - 2) * ls[1])/6
+    resultado += ((dy + 1) * (dy - 1) * (dy - 2) * ls[2])/2
+    resultado += (-dy * (dy + 1) * (dy - 2) * ls[3])/2
+    resultado += (dy * (dy + 1) * (dy - 1) * ls[4])/6
+
+    return resultado
+
+#Metodo de P para verificar o valor de T e retorna para a funcao bicubica
+def P(t):
+    if t > 0:
+        return t
+    else:
+        return 0
+
+#Metodo da funcao Bicubica
+def Bicubica(imagem, x, y):
+    resultado = 0
+    dx = x - math.floor(x)
+    dy = y - math.floor(y)
+    for m in range(0, 4):
+        for n in range(0, 4):
+            f = ChecarBorda(imagem, x + (m-1), y + (n-1))
+            rUm = (1 / 6) * (pow(P(((m-1) - dx) + 2), 3) - 4 * pow(P(((m-1) - dx) + 1), 3) + 6 * pow(P(((m-1) - dx)), 3) - 4 * pow(P(((m-1) - dx) - 1), 3))
+            rDois = (1 / 6) * (pow(P((dy - (n-1)) + 2), 3) - 4 * pow(P((dy - (n-1)) + 1), 3) + 6 * pow(P((dy - (n-1))), 3) - 4 * pow(P((dy - (n-1)) - 1), 3))
+            resultado = resultado + (f * rUm * rDois)
+
+    return int(round(resultado))
+
+#Metodo da funcao Bilinear
+def Bilinear(imagem, x,y):
+    p1 = ChecarBorda(imagem, x, y)
+    p2 = ChecarBorda(imagem, x, y + 1)
+    p3 = ChecarBorda(imagem, x + 1, y)
+    p4 = ChecarBorda(imagem, x + 1, y + 1)
+
+    dx = x - math.floor(x)
+    dy = y - math.floor(y)
+
+    resultado = ((1-dx) * (1-dy) * p1) + (dx * (1-dy) * p2) + ((1-dx) * dy * p3) + (dx * dy * p4)
+
+    return resultado
+
+#Metodo da funcao para calculos os vizinhos proximos
+def VizinhoProximo(imagem, x, y):
     x, y = int(round(x)), int(round(y))
     if x >= imagem.shape[0] or x < 0 or y >= imagem.shape[1] or y < 0:
         return 0
-
     return imagem[x][y]
+
+#Metodo que checa se o valor enviado ultrapassa ou nao a imagem, para retorna um valor correto
+def ChecarBorda(imagem, x, y):
+    x, y = int(round(x)), int(round(y))
+    if x >= imagem.shape[0]:
+        return 0
+    elif x < 0:
+        return 0
+    elif y >= imagem.shape[1]:
+        return 0
+    elif y < 0:
+        return 0
+    else:
+        return imagem[x][y]
 
 #Metodo para calcular a matrix resultante, para que possa ser feita a transformacao
 def CalcularMatrix(imagem, angulo, escala, dimensoes):
@@ -34,7 +101,7 @@ def CalcularMatrix(imagem, angulo, escala, dimensoes):
 
         elif dimensoes is not None:
             escalaXY = [dimensoes[0] / largura, dimensoes[1] / altura]
-            print(escalaXY)
+
         else:
             print("Erro, insira os dados corretamente")
             exit()
@@ -57,16 +124,14 @@ def TransformarImagem(imagem, matrix, dimensoes, escala, rotacao, metodo):
     if escala is None and dimensoes is None:
         dimensoes = (imagem.shape[1], imagem.shape[0])
 
-    print(dimensoes)
     imagemDeSaida = np.zeros((dimensoes[1], dimensoes[0]), dtype=np.uint8) #Altura primeiro, altura em segundo
 
-    print(imagemDeSaida.shape)
     for linha in range(0, imagemDeSaida.shape[0]):
         for coluna in range(0, imagemDeSaida.shape[1]):
             if rotacao is None:
                 novaCordenada = matrix @ (np.array([[linha], [coluna]]))
             else:
-                altura, largura = imagemOriginal.shape
+                altura, largura = imagem.shape
                 y_centro = altura // 2
                 x_centro = largura // 2
                 novaCordenada = matrix @ (np.array([[linha - y_centro], [coluna - x_centro]]))
@@ -81,7 +146,10 @@ def TransformarImagem(imagem, matrix, dimensoes, escala, rotacao, metodo):
 Constantes
 Metodos para modificar a imagem
 """
-METODOS_LOCAIS = np.array([[Neighbor]])
+METODOS_LOCAIS = np.array([[VizinhoProximo],
+                           [Bilinear],
+                           [Bicubica],
+                           [PolinomiosLagrange]])
 
 # Metodo principal
 if __name__ == "__main__":
