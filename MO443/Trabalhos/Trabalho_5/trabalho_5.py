@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 import argparse
 import math
+from numpy.linalg import inv
 
 #Metodo de polinomios de Lagrange
 def PolinomiosLagrange(imagem, x, y):
@@ -112,7 +113,7 @@ def CalcularMatrix(imagem, angulo, escala, dimensoes):
 
 def TransformarImagem(imagem, matrix, dimensoes, escala, rotacao, metodo):
 
-    matrix = np.linalg.inv(matrix) #Matrix inversa
+    matrix = inv(matrix) #Matrix inversa
 
     if escala is not None and dimensoes is not None:
         dimensoes = (int(dimensoes[0] * escala), int(dimensoes[1] * escala))
