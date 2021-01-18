@@ -52,15 +52,15 @@ def Bicubica(imagem, x, y):
 
 #Metodo da funcao Bilinear
 def Bilinear(imagem, x,y):
-    p1 = ChecarBorda(imagem, x, y)
-    p2 = ChecarBorda(imagem, x, y + 1)
-    p3 = ChecarBorda(imagem, x + 1, y)
-    p4 = ChecarBorda(imagem, x + 1, y + 1)
+    pontoUm = ChecarBorda(imagem, x, y)
+    pontoDois = ChecarBorda(imagem, x, y + 1)
+    pontoTres = ChecarBorda(imagem, x + 1, y)
+    pontoQuatro = ChecarBorda(imagem, x + 1, y + 1)
 
     dx = x - math.floor(x)
     dy = y - math.floor(y)
 
-    resultado = ((1-dx) * (1-dy) * p1) + (dx * (1-dy) * p2) + ((1-dx) * dy * p3) + (dx * dy * p4)
+    resultado = ((1-dx) * (1-dy) * pontoUm) + (dx * (1-dy) * pontoDois) + ((1-dx) * dy * pontoTres) + (dx * dy * pontoQuatro)
 
     return resultado
 
